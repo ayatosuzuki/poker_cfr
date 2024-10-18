@@ -1,4 +1,5 @@
 # ただのAKQゲーム。拡張性を重視して複雑にしている部分もある
+# TODO: アクションをクラス化、アクションにbet額などを紐づけして深スタック対応
 CHECK = "check"
 CALL = "call"
 BET = "bet"
@@ -24,17 +25,13 @@ class GameNode:
         self.stack = stack if stack is not None else []
         self.game = game
 
-    def is_terminal(self):
-        # 子ノードがなかったら終端ノードとみなす
-        return len(self.child) == 0
-
     def make_child(self, action: str):
         child = GameNode(
                 player=1 - self.player,  # プレイヤーは交互
                 pot=self.pot,
                 history=self.history + [action],
                 stack=self.stack.copy(),
-                # nodeでmake_childするときにGameのnodesにchildを追加したいので、
+                # Gameのnodesにchildを追加するときなどのため、
                 # 何のGameクラスのノードなのかをノードに記憶させる。もっといい方法があるか？
                 game=self.game
         )
@@ -71,11 +68,12 @@ class GameNode:
         else:
             return self.stack[player] - self.game.FIRST_STACK[player]
 
+    def is_terminal(self):
+        # 子ノードがなかったら終端ノードとみなす
+        return len(self.child) == 0
+
     def display(self):
-        if self.is_terminal():
-            player = "None"
-        else:
-            player = self.player
+        player = "None" if self.is_terminal() else self.player
         print(f"Player: {player}, History: {self.history}, Pot: {self.pot}, Stack: {self.stack}")
 
 
