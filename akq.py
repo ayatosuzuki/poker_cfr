@@ -77,6 +77,20 @@ class GameNode:
         print(f"Player: {player}, History: {self.history}, Pot: {self.pot}, Stack: {self.stack}")
 
 
+class CFR():
+    def __init__(self, game: Game):
+        self.game = game
+
+        # counter factual regretの総和。regret_sum[node][hand][action]
+        self.regret_sum = {}
+        for node in game.nodes:
+            if node.is_terminal():
+                continue
+            actions = node.child
+            hands = ["a", "q"] if node.player == 1 else ["k"]
+            self.regret_sum[node] = {hand: {action: 0 for action in actions} for hand in hands}
+
+
 # akqゲームを構築
 # アクションの順番でノードを作る。eg: root->check->bet->callであれば、ブラフキャッチ
 akq = Game([1, 1])
@@ -93,3 +107,6 @@ node_c_b.make_child(FOLD)
 # 適当にいじろう！
 for node in akq.nodes:
     node.display()
+
+test = CFR(akq)
+print(test.regret_sum)
