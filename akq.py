@@ -90,6 +90,37 @@ class CFR():
             hands = ["a", "q"] if node.player == 1 else ["k"]
             self.regret_sum[node] = {hand: {action: 0 for action in actions} for hand in hands}
 
+    def cal_CFR(self):
+        for t in range(1):
+            strategy = self.cal_strategy()
+            print(strategy)
+            # cf value計算
+            # strategyからcf 到達確率を計算
+            # strategyからcf valueを計算
+            # cf
+
+    def cal_strategy(self):
+        # regret_sumから今回の戦略を算出する
+        # return: strategy[node][action][hand]
+
+        strategy = {}
+        for node in self.game.nodes:
+            if node.is_terminal():
+                continue
+            strategy[node] = {}
+
+            for hand in self.regret_sum[node]:
+                strategy[node][hand] = {}
+                infoset_total_regret = sum(self.regret_sum[node][hand].values())
+
+                # 情報集合内の全てのregretを足しても正にならない場合、等確立にする
+                for action in node.child:
+                    if infoset_total_regret > 0:
+                        strategy[node][hand][action] = self.regret_sum[node][hand][action] / infoset_total_regret
+                    else:
+                        strategy[node][hand][action] = 1 / len(node.child)
+        return strategy
+
 
 # akqゲームを構築
 # アクションの順番でノードを作る。eg: root->check->bet->callであれば、ブラフキャッチ
@@ -109,4 +140,4 @@ for node in akq.nodes:
     node.display()
 
 test = CFR(akq)
-print(test.regret_sum)
+test.cal_CFR()
